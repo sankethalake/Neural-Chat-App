@@ -12,10 +12,10 @@ app = Flask(__name__)  # Initialze flask constructor
 
 # Add your own details
 config = {
-    "apiKey": "AIzaSyBfO6z_1Fver5to10BCCgeXgEcsanBIGtw",
-    "authDomain": "neural-chat-app.firebaseapp.com",
-    "databaseURL": "https://neural-chat-app-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "storageBucket": "neural-chat-app.appspot.com"
+    "apiKey": "AIzaSyDUvIsdnl6O_JTr-jaWfUYOuGefSFRl7e0",
+    "authDomain": "neural-chat-f8456.firebaseapp.com",
+    "databaseURL": "https://neural-chat-f8456-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    "storageBucket": "neural-chat-f8456.appspot.com"
 }
 
 # initialize firebase
@@ -85,22 +85,28 @@ def welcome():
 # If someone clicks on login, they are redirected to /result
 
 
-@app.route("/result", methods=["POST", "GET"])
+@app.route("/result", methods=["GET", "POST"])
 def result():
     if request.method == "POST":  # Only if data has been posted
         result = request.form  # Get the data
         email = result["email"]
         password = result["pass"]
+        print(email) 
+        print(password)
         try:
             # Try signing in the user with the given information
+            print("inside try")
             user = auth.sign_in_with_email_and_password(email, password)
+            print("user created")   
             # Insert the user data in the global person
             global person
             person["is_logged_in"] = True
             person["email"] = user["email"]
             person["uid"] = user["localId"]
             # Get the name of the user
+            print("person created")
             data = db.child("users").get()
+            print(data)
             person["name"] = data.val()[person["uid"]]["name"]
             # Redirect to welcome page
             return redirect(url_for('home'))
@@ -109,7 +115,7 @@ def result():
             return redirect(url_for('login'))
     else:
         if person["is_logged_in"] == True:
-            return redirect(url_for('welcome'))
+            return redirect(url_for('home'))
         else:
             return redirect(url_for('login'))
 
@@ -138,20 +144,20 @@ def register():
             data = {"name": name, "email": email}
             db.child("users").child(person["uid"]).set(data)
             # Go to welcome page
-            return redirect(url_for('welcome'))
+            return redirect(url_for('home'))
         except:
             # If there is any error, redirect to register
             return redirect(url_for('register'))
 
     else:
         if person["is_logged_in"] == True:
-            return redirect(url_for('welcome'))
+            return redirect(url_for('home'))
         else:
             return redirect(url_for('register'))
 
 
-@app.route('/chat', methods=['GET', 'POST'])
-def hello():
+@app.route('/home', methods=['GET', 'POST'])
+def home():
     cryp = []
     if request.method == 'POST':
         raw_message = request.form['alice_input']
@@ -166,7 +172,7 @@ def hello():
 
         plaintext = processBinaryMessage(decipher)
         adv = processBinaryMessage(adversary)
-
+        '''
         if 'file' not in request.files:
             flash('No file part')
             return redirect(request.url)
@@ -188,15 +194,15 @@ def hello():
             decipher = (bob.predict([cipher, img_key]) > 0.5).astype(int)
             adversary = (eve.predict(cipher) > 0.5).astype(int)
 
-            img_plaintext = processBinaryMessage(decipher)
-            img_adv = processBinaryMessage(adversary)
+            # img_plaintext = processBinaryMessage(decipher)
+            # img_adv = processBinaryMessage(adversary)
 
-            print(img_plaintext == img_str)
+            # print(img_plaintext == img_str)
 
             # plaintext_img = processBinaryFile(img_plaintext)
             # adversary_img = processBinaryFile(img_adv)
 
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))'''
 
         cryp = [plaintext, adv]
 
